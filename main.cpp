@@ -8,15 +8,20 @@
 typedef struct _rwlock_t {
     sem_t lock;        // protects readers count
     sem_t writelock;   // exclusive writer access
+    sem_t read_try;
+
     int readers;
+    int waiting_writers;
 } rwlock_t;
 
 rwlock_t rw;
 
 void rwlock_init(rwlock_t *rw) {
     rw->readers = 0;
+    rw->waiting_writers = 0;
     sem_init(&rw->lock, 0, 1);
     sem_init(&rw->writelock, 0, 1);
+    sem_init(&rw->read_try, 0, 1);
 }
 
 void rwlock_acquire_readlock(rwlock_t *rw) {
