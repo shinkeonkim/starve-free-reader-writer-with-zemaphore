@@ -1,5 +1,9 @@
 # Starve-Free Reader Writer With Zemaphore
 
+> 제출자 : 20191564 김신건
+
+> Github: https://github.com/shinkeonkim/starve-free-reader-writer-with-zemaphore
+
 ## 문제 정의
 
 Reader-Writer 문제는 여러 Thread가 동시에 접근할 때 발생하는 Concurrency 문제입니다. 
