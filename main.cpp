@@ -4,11 +4,10 @@
 #include "common.h"
 #include "zemaphore.h"
 
-// Reader-writer lock 정의 (Deadlock 발생 가능 버전)
 typedef struct _rwlock_t {
     sem_t lock;        // protects readers count
     sem_t writelock;   // exclusive writer access
-    sem_t read_try;
+    sem_t read_try; // block readers if writer is waiting
 
     int readers;
     int waiting_writers;
@@ -25,11 +24,13 @@ void rwlock_init(rwlock_t *rw) {
 }
 
 void rwlock_acquire_readlock(rwlock_t *rw) {
+    sem_wait(&rw->read_try);
     sem_wait(&rw->lock);
     rw->readers++;
     if (rw->readers == 1)
         sem_wait(&rw->writelock); // 첫 번째 reader가 writelock을 획득
     sem_post(&rw->lock);
+    sem_post(&rw->read_try);
 }
 
 void rwlock_release_readlock(rwlock_t *rw) {
@@ -41,11 +42,15 @@ void rwlock_release_readlock(rwlock_t *rw) {
 }
 
 void rwlock_acquire_writelock(rwlock_t *rw) {
+    sem_wait(&rw->read_try);
+    rw->waiting_writers++;
     sem_wait(&rw->writelock); // writer는 writelock을 기다림
+    rw->waiting_writers--;
 }
 
 void rwlock_release_writelock(rwlock_t *rw) {
     sem_post(&rw->writelock);
+    sem_post(&rw->read_try);
 }
 
 // Reader 및 Writer 쓰레드 함수
