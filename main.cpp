@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include <pthread.h>
-#include <semaphore.h>
 #include <unistd.h>
+
+#include "common.h"
+#include "zemaphore.h"
 
 // Reader-writer lock 정의 (Deadlock 발생 가능 버전)
 typedef struct _rwlock_t {
